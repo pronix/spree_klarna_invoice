@@ -7,10 +7,10 @@ end
 
 group :test do
   gem 'rspec'
-  gem 'rspec-rails', '~> 2.13'
-  gem 'capybara', '~> 2.1'
-  gem 'capybara-webkit', '~> 1.0.0'
-  gem 'shoulda-matchers', '~> 2.0'
+  gem 'rspec-rails'
+  gem 'capybara'
+  gem 'capybara-webkit'
+  gem 'shoulda-matchers'
   gem 'factory_girl'
   gem 'ffaker'
   gem 'simplecov'
