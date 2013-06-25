@@ -12,8 +12,19 @@ describe Spree::CheckoutController do
   end
 
   context "#update" do
+    before do
+    end
+
+    specify do
+    end
   end
 
   context "#set_klarna_client_ip" do
+    before do
+      ActionDispatch::Request.any_instance.stub(:remote_ip).and_return("192.168.0.1")
+    end
+
+    specify do
+    end
   end
 end

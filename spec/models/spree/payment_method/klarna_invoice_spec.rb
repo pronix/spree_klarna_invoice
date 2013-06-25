@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::PaymentMethod::KlarnaInvoice do
-  context "mass assignent" do
+  context "mass assignment" do
     %w(store_id
     store_secret
     mode
@@ -32,21 +32,25 @@ describe Spree::PaymentMethod::KlarnaInvoice do
     preferred_pnr_formats
     preferred_pnr_min
     preferred_pnr_max).each do |column|
-      it { should allow_mass_assignent_of column.to_sym }
+      it { should allow_mass_assignment_of column.to_sym }
     end
   end
 
-  context "method" do
-    it "source_required?" do
-      source_required?.should be_true
+  context "source_required?" do
+    specify do
+      subject.source_required?.should be_true
     end
+  end
 
-    it "payment_source_class" do
-      payment_source_class.should be_an_instance_of Spree::KlarnaPayment
+  context "payment_source_class" do
+    specify do
+      subject.payment_source_class.should == Spree::KlarnaPayment
     end
+  end
 
-    it "payment_profiles_supported?" do
-      payment_profiles_supported?.should be_true
+  context "payment_profiles_supported?" do
+    specify do
+      subject.payment_profiles_supported?.should be_true
     end
   end
 end

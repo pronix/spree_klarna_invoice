@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Spree::KlarnaPayment do
   context "relation" do
-    it { should have_many :payments, as: :source }
+    it { should have_many :payments }
   end
 
   context "validation" do
@@ -12,10 +12,22 @@ describe Spree::KlarnaPayment do
   end
 
   context "mass assignent" do
-    it { should allow_mass_assignent_of :firstname }
-    it { should allow_mass_assignent_of :lastname }
-    it { should allow_mass_assignent_of :social_security_number }
-    it { should allow_mass_assignent_of :invoice_number }
-    it { should allow_mass_assignent_of :client_ip }
+    it { should allow_mass_assignment_of :firstname }
+    it { should allow_mass_assignment_of :lastname }
+    it { should allow_mass_assignment_of :social_security_number }
+    it { should allow_mass_assignment_of :invoice_number }
+    it { should allow_mass_assignment_of :client_ip }
+  end
+
+  context "actions" do
+    specify do
+      subject.actions.should be_a Array
+      subject.actions.should == ["capture"]
+    end
+  end
+
+  context "can_capture?" do
+    specify do
+    end
   end
 end
