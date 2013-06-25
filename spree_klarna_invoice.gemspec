@@ -6,7 +6,7 @@ require 'spree_klarna_invoice/version'
 
 Gem::Specification.new do |s|
   s.platform     = Gem::Platform::RUBY
-  s.name         = 'spree_faq'
+  s.name         = 'spree_klarna_invoice'
   s.version      = SpreeKlarnaInvoice::VERSION
   s.summary      = 'Klarna Invoice Payment Method for Spree Commerce'
   s.description  = s.summary
