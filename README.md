@@ -4,7 +4,7 @@
 [![Dependency Status](https://gemnasium.com/futhr/spree_klarna_invoice.png)](https://gemnasium.com/futhr/spree_klarna_invoice)
 [![Coverage Status](https://coveralls.io/repos/futhr/spree_klarna_invoice/badge.png?branch=master)](https://coveralls.io/r/futhr/spree_klarna_invoice)
 
-Spree extenstion for Klarna Invoice Payment Method. Makes it possible to invoice customers with Klarna's services. Read more on [Klara][1].
+Spree extenstion for Klarna Invoice Payment Method. Makes it possible to invoice customers with Klarna's services. Read more on [Klarna][1].
 
 Based on Klarna-ruby it is using the old Klarna API. There is a newer version and I intend to fork klarna-ruby and update it with the [Klarna API 2.0][2].
 
