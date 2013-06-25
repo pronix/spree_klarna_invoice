@@ -11,7 +11,6 @@ if ENV['COVERAGE']
     add_group 'Helpers', 'app/helpers'
     add_group 'Models', 'app/models'
     add_group 'Overrides', 'app/overrides'
-    add_group 'Views', 'app/views'
     add_group 'Libraries', 'lib'
   end
 end
