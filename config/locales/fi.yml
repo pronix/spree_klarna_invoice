@@ -1,0 +1,13 @@
+---
+fi:
+  spree:
+    between: välillä
+    chars: merkit
+    email_invoice: "Lähetä lasku sähköpostitse"
+    invoice_fee: "laskun maksu"
+    invoice_fee_after: ""
+    invoice_fee_before: "Maksaessasi laskun laskun maksua sovelletaan Yhdysvaltain dollaria"
+    pnr_formats: "Missä tahansa näistä muodoissa"
+    pnr_validation_first: "Henkilötunnus on"
+    post_invoice: "Lähetä lasku tavallisella postilla (lisämaksu voidaan soveltaa)"
+    sso: "Sosiaaliturvatunnus (VVKKPP-XXXX)"
