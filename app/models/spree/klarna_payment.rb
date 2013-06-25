@@ -74,7 +74,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
     begin
       return ::Klarna::API::Client.new(::Klarna.store_id, ::Klarna.store_secret)
-    rescue Klarna::API::Errors::KlarnaCredentialsError => e
+    rescue ::Klarna::API::Errors::KlarnaCredentialsError => e
       payment.order.set_error e.error_message
       gateway_error(e.error_message)
     rescue ::Klarna::API::Errors::KlarnaServiceError => e
@@ -147,15 +147,15 @@ class Spree::KlarnaPayment < ActiveRecord::Base
       # shipping_cost = shipping_cost * (1 + Spree::TaxRate.default) if Spree::Config[:shipment_inc_vat]
 
       # Client IP
-      client_ip = payment.payment_method.preferred(:mode) == "test" ? "85.230.98.196" : payment.source.client_ip
+      client_ip = payment.payment_method.preferred(:mode) == 'test' ? '85.230.98.196' : payment.source.client_ip
 
       # Set ready date
       ready_date = payment.payment_method.preferred(:activate_in_days) > 0 ? (DateTime.now.to_date + payment.payment_method.preferred(:activate_in_days)).to_s : nil
 
       # Set flags
       flags = {}
-      flags[:TEST_MODE] = TRUE unless payment.payment_method.preferred(:mode) == "production"
-      flags[:AUTO_ACTIVATE] = TRUE if payment.payment_method.preferred(:auto_activate)
+      flags[:TEST_MODE] = true unless payment.payment_method.preferred(:mode) == 'production'
+      flags[:AUTO_ACTIVATE] = true if payment.payment_method.preferred(:auto_activate)
 
       logger.debug "\n----------- add_transaction - Ready date: #{ready_date} -----------\n"
       logger.debug "\n----------- add_transaction - Flags: #{flags} -----------\n"
@@ -202,7 +202,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
     logger.debug "\n----------- KlarnaPayment.activate_invoice -----------\n"
     init_klarna(payment)
 
-    raise Spree::Core::GatewayError.new(t(:missing_invoice_number)) if self.invoice_number.blank?
+    raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number)) if self.invoice_number.blank?
 
     @@klarna.activate_invoice(self.invoice_number)
     send_invoice(payment)
@@ -212,7 +212,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
     logger.debug "\n----------- KlarnaPayment.send_invoice -----------\n"
     init_klarna(payment)
 
-    raise Spree::Core::GatewayError.new(t(:missing_invoice_number)) if self.invoice_number.blank?
+    raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number)) if self.invoice_number.blank?
 
     if payment.payment_method.preferred(:email_invoice)
       logger.info "\n----------- KlarnaPayment.send_invoice : Email -----------\n"
