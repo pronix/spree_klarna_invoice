@@ -14,7 +14,7 @@ Based on Klarna-ruby it is using the old Klarna API. There is a newer version an
 
 ## Installation
 
-In your Gemfile:
+In your `Gemfile`:
 
 ```ruby
 gem 'spree_klarna_invoice', github: 'futhr/spree_klarna_invoice'
@@ -50,6 +50,7 @@ Here are some ways *you* can contribute:
 * by using prerelease versions
 * by reporting [bugs][5]
 * by suggesting new features
+* by writing [translations][7]
 * by writing or editing documentation
 * by writing specifications
 * by writing code (*no patch is too small*: fix typos, add comments, clean up inconsistent whitespace)
@@ -61,7 +62,7 @@ Starting point:
 
 * Fork the repo
 * Clone your repo
-* Run `bundle`
+* Run `bundle install`
 * Run `bundle exec rake test_app` to create the test application in `spec/test_app`
 * Make your changes and follow this [Style Guide](https://github.com/thoughtbot/guides)
 * Ensure specs pass by running `bundle exec rspec spec`
@@ -75,4 +76,6 @@ Copyright (c) 2013 Emil Karlsson, released under the [New BSD License][6]
 [4]: http://www.fsf.org/licensing/essays/free-sw.html
 [5]: https://github.com/futhr/spree_klarna_invoice/issues
 [6]: https://github.com/futhr/spree_klarna_invoice/tree/master/LICENSE
+[7]: http://www.localeapp.com/projects/4913
+
 
