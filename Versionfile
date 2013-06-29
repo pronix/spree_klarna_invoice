@@ -1,4 +1,0 @@
-"2.1.x" => { :branch => "master" }
-"2.0.x" => { :branch => "master" }
-"1.0.x" => { :branch => "stable/1.0.6" }
-"1.2.x" => { :branch => "dev/1.2.0" }
