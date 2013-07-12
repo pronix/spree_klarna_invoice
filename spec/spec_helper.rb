@@ -36,6 +36,7 @@ Dir[File.join(File.dirname(__FILE__), 'factories/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
   config.include Capybara::DSL, type: :request
+  config.include Capybara::DSL
   config.include Spree::TestingSupport::ControllerRequests
   config.include FactoryGirl::Syntax::Methods
   config.include Spree::TestingSupport::UrlHelpers

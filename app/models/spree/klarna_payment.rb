@@ -3,39 +3,49 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
   validates :social_security_number, :firstname, :lastname, presence: true
 
-  attr_accessible :firstname, :lastname, :social_security_number, :invoice_number, :client_ip
+  attr_accessible :firstname, :lastname, :social_security_number,
+                  :invoice_number, :client_ip
 
   def actions
     %w{capture}
   end
 
+  # format log messages
+  def log_message(str)
+    "\n----------- #{str} -----------\n"
+  end
+
   # Indicates whether its possible to capture the payment
   def can_capture?(payment)
-    ['checkout', 'pending', 'processing'].include?(payment.state) && !payment.order.klarna_invoice_number.blank?
+    ['checkout', 'pending', 'processing'].include?(payment.state) &&
+      payment.order.klarna_invoice_number.present?
   end
 
   def process!
-    logger.debug "\n----------- KlarnaPayment.process! -----------\n"
+    logger.debug log_message('KlarnaPayment.process!')
 
     payment = self.payments.first
 
     if self.invoice_number.blank?
       create_invoice(payment)
     else
-      logger.error "\n----------- KlarnaPayment.process! -> Order Exists in Klarna with no: #{self.invoice_number} | Order: #{payment.order.number} (#{payment.order.id}) -----------\n"
+      logger.error log_message("KlarnaPayment.process! -> Order Exists in Klarna with no: #{self.invoice_number} | Order: #{payment.order.number} (#{payment.order.id})")
     end
 
-    return capture(payment) if Spree::Config[:auto_capture] && !self.invoice_number.blank?
+    if Spree::Config[:auto_capture] && self.invoice_number.present?
+      return capture(payment)
+    end
 
     return ActiveMerchant::Billing::Response.new(true, 'Klarna Payment : Created invoice without capture', {})
   end
 
   # Activate action
   def capture(payment)
-    logger.debug "\n----------- KlarnaPayment.capture -----------\n"
-    logger.info "Country Code #{payment.payment_method.preferred(:country_code)}"
-    logger.info "Store Id #{payment.payment_method.preferred(:store_id)}"
-    logger.info "Store Secret #{payment.payment_method.preferred(:store_secret)}"
+    logger.debug log_message('KlarnaPayment.capture')
+    pay_method = payment.payment_method
+    logger.info "Country Code #{pay_method.preferred(:country_code)}"
+    logger.info "Store Id #{pay_method.preferred(:store_id)}"
+    logger.info "Store Secret #{pay_method.preferred(:store_secret)}"
     payment.update_attribute(:state, 'pending') if payment.state == 'checkout' || payment.state == 'processing'
 
     begin
@@ -60,7 +70,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
   # Setup Klarna connection
   def setup_klarna(payment)
-    logger.debug "\n----------- KlarnaPayment.setup_klarna -----------\n"
+    logger.debug log_message('KlarnaPayment.setup_klarna')
     require 'klarna'
 
     Klarna::setup do |config|
@@ -85,7 +95,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
   # Create Klarna invoice and send to
   def create_invoice(payment)
-    logger.debug "\n----------- KlarnaPayment.create_invoice -----------\n"
+    logger.debug log_message('KlarnaPayment.create_invoice')
 
     # Initialize Klarna connection
     init_klarna(payment)
@@ -97,7 +107,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
     # Implement verification to Klarna to get secret
     sso_secret = @@klarna.send(:digest, payment.payment_method.preferred(:store_id), ssn, payment.payment_method.preferred(:store_secret))
-    logger.debug "\n----------- SSO Secret #{sso_secret} for #{ssn} -----------\n"
+    logger.debug log_message("SSO Secret #{sso_secret} for #{ssn}")
     order_items = []
 
     payment_amount = 0
@@ -106,7 +116,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
     # Add products
     payment.order.line_items.each do |item|
-      logger.debug "\n----------- Item: #{item.quantity}, #{item.product.sku}, #{item.product.name}, #{item.amount} -----------\n"
+      logger.debug log_message("Item: #{item.quantity}, #{item.product.sku}, #{item.product.name}, #{item.amount}")
       flags = {}
       flags[:INC_VAT] = ::Klarna::API::GOODS[:INC_VAT] if default_tax_rate.included_in_price
       order_items << @@klarna.make_goods(item.quantity, item.product.sku, item.product.name, item.product.price * 100.00, default_tax_rate.amount*100, nil, flags)
@@ -133,7 +143,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
       end
 
       payment_amount += adjustment.amount
-      logger.info "\n----------- Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount} -----------\n"
+      logger.info log_message("Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount}")
     end
 
     # Create address
@@ -141,7 +151,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
     # Do transaction and create invoice in Klarna
     begin
-      logger.debug "\n----------- add_transaction -----------\n"
+      logger.debug log_message('add_transaction')
 
       # shipping_cost = payment.order.ship_total * 100
       # shipping_cost = shipping_cost * (1 + Spree::TaxRate.default) if Spree::Config[:shipment_inc_vat]
@@ -157,9 +167,9 @@ class Spree::KlarnaPayment < ActiveRecord::Base
       flags[:TEST_MODE] = true unless payment.payment_method.preferred(:mode) == 'production'
       flags[:AUTO_ACTIVATE] = true if payment.payment_method.preferred(:auto_activate)
 
-      logger.debug "\n----------- add_transaction - Ready date: #{ready_date} -----------\n"
-      logger.debug "\n----------- add_transaction - Flags: #{flags} -----------\n"
-      logger.debug "\n----------- add_transaction - Client IP: #{payment.source.client_ip} -----------\n"
+      logger.debug log_message("add_transaction - Ready date: #{ready_date}")
+      logger.debug log_message("add_transaction - Flags: #{flags}")
+      logger.debug log_message("add_transaction - Client IP: #{payment.source.client_ip}")
 
       invoice_no = @@klarna.add_transaction(
           "USER-#{payment.order.user_id}",                          # store_user_id,
@@ -185,8 +195,8 @@ class Spree::KlarnaPayment < ActiveRecord::Base
           nil,                                                      # rand_string = nil,
           flags)                                                    # flags = nil
 
-      logger.info "\n----------- Order: #{payment.order.number} (#{payment.order.id}) | Invoice: #{invoice_no} -----------\n"
-      logger.info "\n----------- Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount} -----------\n"
+      logger.info log_message("Order: #{payment.order.number} (#{payment.order.id}) | Invoice: #{invoice_no}")
+      logger.info log_message("Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount}")
 
       self.update_attribute(:invoice_number, invoice_no)
       payment.update_attribute(:amount, payment_amount)
@@ -199,28 +209,32 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
   # Active Klarna Invoice
   def activate_invoice(payment)
-    logger.debug "\n----------- KlarnaPayment.activate_invoice -----------\n"
+    logger.debug log_message('KlarnaPayment.activate_invoice')
     init_klarna(payment)
 
-    raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number)) if self.invoice_number.blank?
+    if self.invoice_number.blank?
+      raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number))
+    end
 
     @@klarna.activate_invoice(self.invoice_number)
     send_invoice(payment)
   end
 
   def send_invoice(payment)
-    logger.debug "\n----------- KlarnaPayment.send_invoice -----------\n"
+    logger.debug log_message('KlarnaPayment.send_invoice')
     init_klarna(payment)
 
-    raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number)) if self.invoice_number.blank?
+    if self.invoice_number.blank?
+      raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number))
+    end
 
     if payment.payment_method.preferred(:email_invoice)
-      logger.info "\n----------- KlarnaPayment.send_invoice : Email -----------\n"
+      logger.info log_message('KlarnaPayment.send_invoice : Email')
       @@klarna.email_invoice(self.invoice_number)
     end
 
     if payment.payment_method.preferred(:send_invoice)
-      logger.info "\n----------- KlarnaPayment.send_invoice : Post -----------\n"
+      logger.info log_message('KlarnaPayment.send_invoice : Post')
       @@klarna.send_invoice(self.invoice_number)
     end
   end

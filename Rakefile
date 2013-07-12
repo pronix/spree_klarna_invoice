@@ -1,3 +1,4 @@
+# Encoding: utf-8
 require 'rubygems'
 require 'rake'
 require 'rake/testtask'
@@ -25,6 +26,11 @@ end
 namespace :test_app do
   desc 'Rebuild test database'
   task :rebuild do
-    system 'cd spec/dummy && rake db:drop db:migrate RAILS_ENV=test'
+    rebuild = 'cd spec/dummy && export RAILS_ENV=test '
+    rebuild << ' && rake spree:install:migrations'
+    rebuild << ' && rake spree_auth:install:migrations'
+    rebuild << ' && rake spree_klarna_invoice:install:migrations'
+    rebuild << ' && rake db:drop && rake db:create && rake db:migrate'
+    system rebuild
   end
 end
