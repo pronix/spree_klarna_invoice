@@ -21,6 +21,7 @@ group :test do
   gem 'i18n-spec'
   gem 'guard-rspec'
   gem 'coveralls', require: false
+  gem 'launchy'
 end
 
 # until upstream master fixed

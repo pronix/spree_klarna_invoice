@@ -1,5 +1,5 @@
-Deface::Override.new(virtual_path:  "spree/checkout/edit",
-                     name:          "klarna_info",
+Deface::Override.new(virtual_path:  'spree/checkout/edit',
+                     name:          'klarna_info',
                      insert_bottom: "[data-hook='checkout_content']",
-                     partial:       "spree/klarna/klarna_info",
+                     partial:       'spree/klarna/klarna_info',
                      disabled:      false)

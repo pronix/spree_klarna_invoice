@@ -12,23 +12,34 @@ Spree::CheckoutController.class_eval do
       end
 
       # Add Klarna invoice cost
-      if !@order.payment.nil? && @order.adjustments.klarna_invoice_cost.count <= 0 && @order.payment.payment_method && @order.payment.payment_method.class.name == 'Spree::PaymentMethod::KlarnaInvoice'
-        @order.adjustments.create(amount:     @order.payment.payment_method.preferred(:invoice_fee),
+      if @order.add_klarna?
+
+        # FIXME require validation that order restrict partitial payments
+        paymeth = @order.payments.first.payment_method
+
+        fee = paymeth.preferred(:invoice_fee)
+        adj = @order.adjustments.create(amount: fee,
                                   source:     @order,
-                                  originator: @order.payment.payment_method,
-                                  locked:     true,
                                   label:      Spree.t(:invoice_fee))
+        # FIXME define correct originator
+        # paymenthod is not correct spree/core/app/models/spree/adjustment.rb
+        #adj.originator = paymeth
+        #adj.save!
+        adj.lock!
         @order.update!
       end
 
       # Remove Klarna invoice cost
-      if !@order.payment.nil? && @order.adjustments.klarna_invoice_cost.count > 0 && @order.payment.payment_method && @order.payment.payment_method.class.name != 'Spree::PaymentMethod::KlarnaInvoice'
+      if @order.remove_klarna?
         @order.adjustments.klarna_invoice_cost.destroy_all
         @order.update!
       end
 
       if @order.next
-        state_callback(:after)
+        # FIXME not working
+        # state_callback(:after)
+        # fix require recheck
+        session[:order_id] = nil if @order.completed?
       else
         flash[:error] = @order.get_error # Changed by Noc
         respond_with(@order, location: checkout_state_path(@order.state))
