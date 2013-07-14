@@ -1,3 +1,4 @@
+# Encoding: utf-8
 Spree::CheckoutController.class_eval do
   before_filter :set_klarna_client_ip, only: [:update]
 
@@ -12,28 +13,9 @@ Spree::CheckoutController.class_eval do
       end
 
       # Add Klarna invoice cost
-      if @order.add_klarna?
-
-        # FIXME require validation that order restrict partitial payments
-        paymeth = @order.payments.first.payment_method
-
-        fee = paymeth.preferred(:invoice_fee)
-        adj = @order.adjustments.create(amount: fee,
-                                  source:     @order,
-                                  label:      Spree.t(:invoice_fee))
-        # FIXME define correct originator
-        # paymenthod is not correct spree/core/app/models/spree/adjustment.rb
-        #adj.originator = paymeth
-        #adj.save!
-        adj.lock!
-        @order.update!
-      end
-
+      @order.add_klarna_fee!
       # Remove Klarna invoice cost
-      if @order.remove_klarna?
-        @order.adjustments.klarna_invoice_cost.destroy_all
-        @order.update!
-      end
+      @order.remove_klarna_fee!
 
       if @order.next
         # FIXME not working

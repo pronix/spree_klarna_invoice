@@ -20,6 +20,11 @@ class Spree::KlarnaPayment < ActiveRecord::Base
     logger.debug log_message(str)
   end
 
+  # format and send message to info
+  def mes_info(str)
+    logger.info log_message(str)
+  end
+
   # Indicates whether its possible to capture the payment
   def can_capture?(payment)
     ['checkout', 'pending', 'processing'].include?(payment.state) &&
@@ -136,6 +141,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
     payment_amount = 0
 
+    # FIXME why taxrate first ?
     default_tax_rate = Spree::TaxRate.find(1)
 
     # Add products
@@ -179,7 +185,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
       end
 
       payment_amount += adjustment.amount
-      logger.info log_message("Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount}")
+      mes_info("Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount}")
     end
 
     # Create address
@@ -240,8 +246,8 @@ class Spree::KlarnaPayment < ActiveRecord::Base
           nil,                                                      # rand_string = nil,
           flags)                                                    # flags = nil
 
-      logger.info log_message("Order: #{payment.order.number} (#{payment.order.id}) | Invoice: #{invoice_no}")
-      logger.info log_message("Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount}")
+      mes_info("Order: #{payment.order.number} (#{payment.order.id}) | Invoice: #{invoice_no}")
+      mes_info("Order: #{payment.order.number} (#{payment.order.id}) | payment_amount: #{payment_amount}")
 
       self.update_attribute(:invoice_number, invoice_no)
       payment.update_attribute(:amount, payment_amount)
@@ -252,14 +258,18 @@ class Spree::KlarnaPayment < ActiveRecord::Base
     end
   end
 
+  # raise missing invoice nubmer
+  def raise_missing_invoice
+    if self.invoice_number.blank?
+      raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number))
+    end
+  end
+
   # Active Klarna Invoice
   def activate_invoice(payment)
     mes_debug('KlarnaPayment.activate_invoice')
     init_klarna(payment)
-
-    if self.invoice_number.blank?
-      raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number))
-    end
+    raise_missing_invoice
 
     @@klarna.activate_invoice(self.invoice_number)
     send_invoice(payment)
@@ -268,18 +278,15 @@ class Spree::KlarnaPayment < ActiveRecord::Base
   def send_invoice(payment)
     mes_debug('KlarnaPayment.send_invoice')
     init_klarna(payment)
-
-    if self.invoice_number.blank?
-      raise Spree::Core::GatewayError.new(Spree.t(:missing_invoice_number))
-    end
+    raise_missing_invoice
 
     if pay_method.preferred(:email_invoice)
-      logger.info log_message('KlarnaPayment.send_invoice : Email')
+      mes_info('KlarnaPayment.send_invoice : Email')
       @@klarna.email_invoice(self.invoice_number)
     end
 
     if pay_method.preferred(:send_invoice)
-      logger.info log_message('KlarnaPayment.send_invoice : Post')
+      mes_info('KlarnaPayment.send_invoice : Post')
       @@klarna.send_invoice(self.invoice_number)
     end
   end

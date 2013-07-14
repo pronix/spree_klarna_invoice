@@ -5,9 +5,12 @@ feature 'Buy' do
     # factories defined in spree/core/lib/spree/testing_support/factories
     # @calculator = create(:calculator)
     zone = create(:zone, name: 'CountryZone')
-
+    @ship_cat = create(:shipping_category,name: 'all')
 
     @product = create(:base_product, name: 'product1')
+    @product.shipping_category = @ship_cat
+    @product.save!
+
     @country = create(:country,
                       iso_name: 'SWEDEN',
                       name: 'Sweden',
@@ -17,13 +20,15 @@ feature 'Buy' do
     @country.states_required = false
     @country.save!
     @state = @country.states.create(name: 'Stockholm')
-    zone.members.create(zoneable: @country)
+    zone.members.create(zoneable: @country,zoneable_type: 'Country')
 
-    FactoryGirl.create(:shipping_method).tap do |shipping_method|
-      shipping_method.calculator.preferred_amount = 10
-      shipping_method.calculator.save
-      shipping_method.zones << zone
-    end
+    ship_meth=FactoryGirl.create(:shipping_method,
+        :calculator_type => 'Spree::Calculator::Shipping::FlatRate',
+        :display_on => 'both')
+    ship_meth.zones << zone
+    ship_meth.shipping_categories << @ship_cat
+    ship_meth.calculator.preferred_amount = 90
+    ship_meth.save!
 
     # defined in spec/factories/klarna_payment_factory
     @pay_method = create(:klarna_payment_method)
@@ -58,15 +63,18 @@ feature 'Buy' do
     click_button 'Save and Continue'
 
     # shipping
-    save_and_open_page
     click_button 'Save and Continue'
-    #save_and_open_page
 
     # payment page
     fill_in 'social_security_number', with: '410321-9202'
     click_button 'Save and Continue'
 
+    # confirm
+    # FIXME undefined method `authorize' for #<Spree::PaymentMethod::KlarnaInvoice:0x0000000d4c8ee0>
+    # click_button 'Place Order'
+    #
+
     # as result require receive invoice and check that invoice created in klarna
-    save_and_open_page
+    # save_and_open_page
   end
 end
