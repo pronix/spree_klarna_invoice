@@ -3,11 +3,34 @@ Spree::BaseHelper.class_eval do
     request.remote_ip
   end
 
+  def validation_error_head
+    "#{Spree.t(:pnr_validation_first)} "
+  end
+
   def pnr_validation_error(min, max)
-    if(min != max)
-      "#{Spree.t(:pnr_validation_first)} #{Spree.t(:between)} #{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_min)} #{Spree.t(:and)} #{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_max)} #{Spree.t(:chars)}. #{Spree.t(:pnr_formats)} #{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_formats)}"
+    mes = validation_error_head
+    if min != max
+      mes << validation_between(min, max)
     else
-      "#{Spree.t(:pnr_validation_first)} #{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_min)} #{Spree.t(:chars)}. #{Spree.t(:pnr_formats)} #{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_formats)}"
+      mes << "#{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_min)}"
     end
+    mes << validation_error_tail
+    return mes
+  end
+
+  def validation_between(min, max)
+    mes = "#{Spree.t(:between)} "
+    mes << "#{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_min)} "
+    mes << "#{Spree.t(:and)} "
+    mes << "#{Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_max)} "
+    return mes
+  end
+
+  def validation_error_tail
+    result = "#{Spree.t(:chars)}. "
+    result << Spree.t(:pnr_formats)
+    result << ' '
+    result << Spree::PaymentMethod::KlarnaInvoice.first.preferred(:pnr_formats)
+    return result
   end
 end

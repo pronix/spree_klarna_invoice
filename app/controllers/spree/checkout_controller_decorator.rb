@@ -1,3 +1,4 @@
+# Encoding: utf-8
 Spree::CheckoutController.class_eval do
   before_filter :set_klarna_client_ip, only: [:update]
 
@@ -12,23 +13,15 @@ Spree::CheckoutController.class_eval do
       end
 
       # Add Klarna invoice cost
-      if !@order.payment.nil? && @order.adjustments.klarna_invoice_cost.count <= 0 && @order.payment.payment_method && @order.payment.payment_method.class.name == 'Spree::PaymentMethod::KlarnaInvoice'
-        @order.adjustments.create(amount:     @order.payment.payment_method.preferred(:invoice_fee),
-                                  source:     @order,
-                                  originator: @order.payment.payment_method,
-                                  locked:     true,
-                                  label:      Spree.t(:invoice_fee))
-        @order.update!
-      end
-
+      @order.add_klarna_fee!
       # Remove Klarna invoice cost
-      if !@order.payment.nil? && @order.adjustments.klarna_invoice_cost.count > 0 && @order.payment.payment_method && @order.payment.payment_method.class.name != 'Spree::PaymentMethod::KlarnaInvoice'
-        @order.adjustments.klarna_invoice_cost.destroy_all
-        @order.update!
-      end
+      @order.remove_klarna_fee!
 
       if @order.next
-        state_callback(:after)
+        # FIXME not working
+        # state_callback(:after)
+        # fix require recheck
+        session[:order_id] = nil if @order.completed?
       else
         flash[:error] = @order.get_error # Changed by Noc
         respond_with(@order, location: checkout_state_path(@order.state))
