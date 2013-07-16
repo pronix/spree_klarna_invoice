@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 FactoryGirl.define do
   factory :klarna_payment, class: Spree::KlarnaPayment do
     association(:source, factory: :payment)

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module SpreeKlarnaInvoice
   module Generators
     class InstallGenerator < Rails::Generators::Base

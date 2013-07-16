@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 Deface::Override.new(virtual_path:  'spree/checkout/edit',
                      name:          'klarna_info',
                      insert_bottom: "[data-hook='checkout_content']",

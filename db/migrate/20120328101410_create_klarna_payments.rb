@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class CreateKlarnaPayments < ActiveRecord::Migration
   def change
     create_table :spree_klarna_payments, force: true do |t|

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 if Spree::PaymentMethod.table_exists? && klarna_invoice = Spree::PaymentMethod::KlarnaInvoice.first
   Deface::Override.new(virtual_path: 'spree/shared/_footer',
                        name:         'klarna_footer_logo',

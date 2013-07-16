@@ -1,4 +1,5 @@
-# Encoding: utf-8
+# encoding: utf-8
+
 Spree::Order.class_eval do
   # FIXME looks like not required code
 =begin

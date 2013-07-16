@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module SpreeKlarnaInvoice
   class Engine < Rails::Engine
     require 'spree/core'

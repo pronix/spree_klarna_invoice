@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class Spree::PaymentMethod::KlarnaInvoice < Spree::PaymentMethod
   preference :store_id,         :integer                    # 2029
   preference :store_secret,     :string                     # 3FPNSzybArL6vOg
