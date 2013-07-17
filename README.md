@@ -22,9 +22,9 @@ gem 'spree_klarna_invoice', github: 'futhr/spree_klarna_invoice'
 
 Then run from the command line:
 
-    $ bundle install
-    $ rails g spree_klarna_invoice:install
-    $ rake db:migrate
+    bundle install
+    rails g spree_klarna_invoice:install
+    rake db:migrate
 
 ## Todo
 
@@ -64,7 +64,7 @@ Starting point:
 * Clone your repo
 * Run `bundle install`
 * Run `bundle exec rake test_app` to create the test application in `spec/test_app`
-* Make your changes and follow this [Style Guide](https://github.com/thoughtbot/guides)
+* Make your changes and follow this [Style Guide][8]
 * Ensure specs pass by running `bundle exec rspec spec`
 * Submit your pull request
 
@@ -75,7 +75,7 @@ Copyright (c) 2013 Emil Karlsson, released under the [New BSD License][6]
 [3]: https://github.com/futhr/klarna-ruby
 [4]: http://www.fsf.org/licensing/essays/free-sw.html
 [5]: https://github.com/futhr/spree_klarna_invoice/issues
-[6]: https://github.com/futhr/spree_klarna_invoice/tree/master/LICENSE
+[6]: https://github.com/futhr/spree_klarna_invoice/tree/master/LICENSE.md
 [7]: http://www.localeapp.com/projects/4913
-
+[8]: https://github.com/thoughtbot/guides
 
