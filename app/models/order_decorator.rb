@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 Spree::Order.class_eval do
   # FIXME looks like not required code
 =begin
@@ -44,8 +42,8 @@ Spree::Order.class_eval do
 
       fee = paymeth.preferred(:invoice_fee)
       adj = adjustments.create(amount: fee,
-                               source:  self,
-                               label:      Spree.t(:invoice_fee))
+                               source: self,
+                               label:  Spree.t(:invoice_fee))
       # FIXME define correct originator
       # paymenthod is not correct spree/core/app/models/spree/adjustment.rb
       # adj.originator = paymeth

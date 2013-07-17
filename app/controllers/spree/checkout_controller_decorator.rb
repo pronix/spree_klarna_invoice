@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 Spree::CheckoutController.class_eval do
   before_filter :set_klarna_client_ip, only: [:update]
 
