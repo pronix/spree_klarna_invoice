@@ -32,6 +32,9 @@ feature 'Buy' do
     ship_meth.calculator.preferred_amount = 90
     ship_meth.save!
 
+    # require create tax categori
+    # require create Spree::TaxRate
+    #
     # defined in spec/factories/klarna_payment_factory
     @pay_method = create(:klarna_payment_method)
   end

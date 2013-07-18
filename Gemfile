@@ -6,6 +6,7 @@ group :assets do
 end
 
 group :test do
+  gem 'therubyracer'
   gem 'rspec'
   gem 'rspec-rails'
   gem 'capybara'

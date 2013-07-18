@@ -89,7 +89,8 @@ class Spree::KlarnaPayment < ActiveRecord::Base
   # Init Klarna instance
   def init_klarna(payment)
     @@klarna ||= setup_klarna(payment)
-    @@klarna.timeout = pay_method.preferred(:timeout) unless pay_method.preferred(:timeout) <= 0
+    payment_method = Spree::PaymentMethod::KlarnaInvoice.first
+    @@klarna.timeout = payment_method.preferred(:timeout) unless payment_method.preferred(:timeout) <= 0
   end
 
   # Setup Klarna connection
@@ -192,6 +193,7 @@ class Spree::KlarnaPayment < ActiveRecord::Base
 
     # Create address
     bill_addr =  payment.order.bill_address
+    raise 'Require country iso like SE for Sweden' if bill_addr.country.iso.blank?
     address = @@klarna.make_address("", bill_addr.address1,
                                     bill_addr.zipcode.delete(' ').to_i,
                                     bill_addr.city, bill_addr.country.iso,

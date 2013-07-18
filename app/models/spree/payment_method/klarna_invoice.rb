@@ -65,4 +65,11 @@ class Spree::PaymentMethod::KlarnaInvoice < Spree::PaymentMethod
   def purchase(money, payment_source, options = {})
     return payment_source.process!
   end
+
+  # 11000,
+  # #<Spree::KlarnaPayment:0x0000000a6bc6a0>,
+  # {:email=>"spree@example.com", :customer=>"spree@example.com", :ip=>"127.0.0.1", :order_id=>"R435506100-9JANRGBN", :shipping=>#<BigDecimal:2fb9da0,'0.1E4',9(36)>, :tax=>0, :subtotal=>#<BigDecimal:2f438a8,'0.1E5',9(36)>, :discount=>0, :currency=>"USD", :billing_address=>{:name=>"Dmitry Vasilets", :address1=>"Kuglerstr 26", :address2=>"", :city=>"Berlin", :state=>"Berlin", :zip=>"10439", :country=>nil, :phone=>"+4917687624890"}, :shipping_address=>{:name=>"Dmitry Vasilets", :address1=>"Kuglerstr 26", :address2=>"", :city=>"Berlin", :state=>"Berlin", :zip=>"10439", :country=>nil, :phone=>"+4917687624890"}}
+  def authorize(money, payment_source, options = {})
+    purchase(money, payment_source, options)
+  end
 end
